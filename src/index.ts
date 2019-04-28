@@ -17,9 +17,11 @@
 */
 
 import { CommandClient, Message, PrivateChannel, TextChannel, GuildChannel } from "eris";
+import * as util from "util";
 import chalk from "chalk";
 import config from "../config";
 import db from "./utils/mongodb";
+import { notEqual } from "assert";
 
 const bot = new CommandClient(config.token, {}, {
     description: config.description,
@@ -52,7 +54,7 @@ setCommand.registerSubcommand("vclog", async (msg: Message): Promise<any> => {
     // if(typeof msg.channel !== TextChannel) throw bot.createMessage(msg.channel.id, "This Command can Only be Used In A Guild!")
     let guild = (msg.channel as TextChannel).guild;
     if (!guild) return bot.createMessage(msg.channel.id, "This Command can Only be Used In A Guild!")
-    let channel: string ;
+    let channel: string;
     let shouldSet = true;
     if ((msg.channelMentions as Array<string>).length <= 0) shouldSet = false;
     channel = (msg.channelMentions as Array<string>)[0];
@@ -65,25 +67,28 @@ setCommand.registerSubcommand("vclog", async (msg: Message): Promise<any> => {
 
     switch (shouldSet) {
         case true:
-            db.findOne({ serverID: guild.id }, async (err, file) => {
-                if (err) return console.log(chalk.red(err.stack));
-                if (!file || file === null) {
-                    console.log("0");
-                    let stage = new db();
-                    (stage as any).serverID = guild.id;
-                    (stage as any).voicelog = (channel as String);
-                    console.log((stage as any).voicelog);
-                    stage.save();
-                } else if (file || file !== null) {
-                    console.log("1");
-                    await db.updateOne({ serverID: guild.id }, {  voicelog: channel  });
-                }
-            });
+            let stage = new db();
+            (stage as any).voicelog = (channel as String);
+            stage.save();
+            // db.findOne({ serverID: guild.id }, async (err, file) => {
+            //     if (err) return console.log(chalk.red(err.stack));
+            //     if (!file || file === null) {
+            //         console.log("0");
+            //         let stage = new db();
+            //         (stage as any).serverID = guild.id;
+            //         (stage as any).voicelog = (channel as String);
+            //         console.log((stage as any).voicelog);
+            //         stage.save();
+            //     } else if (file || file !== null) {
+            //         console.log("1");
+            //         await db.updateOne({ serverID: guild.id }, {  voicelog: channel  });
+            //     }
+            // });
             break;
 
         case false:
             console.log("2");
-            await db.updateOne({ serverID: guild.id }, {  voicelog: undefined });
+            await db.updateOne({ serverID: guild.id }, { voicelog: undefined });
             break;
     }
 });
@@ -93,7 +98,7 @@ bot.registerCommand("config", (msg: Message) => {
     if (!guild) return bot.createMessage(msg.channel.id, "This Command can Only be Used In A Guild!")
     db.findOne({ serverID: guild.id }, async (err, file) => {
         if (err) return console.log(chalk.red(err.stack));
-        if(!file || file===null) return bot.createMessage(msg.channel.id, "Configuration Not Found!")
+        if (!file || file === null) return bot.createMessage(msg.channel.id, "Configuration Not Found!")
         console.log(typeof file);
         console.log(file)
         return bot.createMessage(msg.channel.id, {
@@ -109,6 +114,18 @@ bot.registerCommand("config", (msg: Message) => {
         })
     });
 });
+
+bot.registerCommand("eval" , async (message: Message, args: any[]): Promise<any> => {
+    let guild = (message.channel as TextChannel).guild, channel = message.channel, author = message.author, member = message.member; // eslint-disable-line
+    if(author.id !== "365644930556755969") return;
+    try {
+        let output = await eval(`(async function(){${args.join(" ").replace(/“|”/g, "\"")}}).call()`);
+        output = util.inspect(output, { depth: 0 }).substring(0, 1900);
+        return `:white_check_mark: **Output:** \`\`\`js\n${output}\`\`\``;
+    } catch(error) {
+        return `:x: **Error:** \`\`\`${error}\`\`\``;
+    }
+})
 
 process.on("unhandledRejection", (err: any) => {
     console.log(chalk.red(err.stack));
