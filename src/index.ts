@@ -69,7 +69,9 @@ setCommand.registerSubcommand("vclog", async (msg: Message): Promise<any> => {
             if (err) return console.log(chalk.red(err.stack));
             if(!file || file === null) {
                 console.log("0");
-            let stage = new db({serverID: guild.id, logging : { voicelog: channel}});
+            let stage = new db();
+            (stage as any).serverID = guild.id;
+            (stage as any).logging.voicelog = channel;
             await stage.save();
         } else if(file || file !== null){
             console.log("1");
