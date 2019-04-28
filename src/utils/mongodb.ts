@@ -6,9 +6,9 @@ mongoose.connect(config.mongoURI , { useNewUrlParser: true });
 const guildSchema = new mongoose.Schema({
     serverID: String,
     logging: {
-        messageLog: String,
-        voiceLog: String,
-        useLog: String
+        messageLog: {type: String, default: undefined},
+        voiceLog: {type: String, default: undefined},
+        userLog: {type: String, default: undefined}
     }
 });
 

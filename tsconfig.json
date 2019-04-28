@@ -16,8 +16,7 @@
         "types": [
 			"node",
 			"eris",
-			"chalk",
-			"mongoose"
+			"chalk"
         ]
 	},
 	"exclude": [

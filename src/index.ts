@@ -16,22 +16,22 @@
 * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import {CommandClient, Message} from "eris";
+import { CommandClient, Message, PrivateChannel, TextChannel, GuildChannel } from "eris";
 import chalk from "chalk";
 import config from "../config";
 import db from "./utils/mongodb";
 
-const bot = new CommandClient(config.token , {} , {
+const bot = new CommandClient(config.token, {}, {
     description: config.description,
     prefix: config.preifx,
     owner: config.owner
 });
 
-bot.on("ready" , () => {
+bot.on("ready", () => {
     console.log(chalk.blue(`[ BOT ] Logged In as ${bot.user.username} - ${bot.user.id}`));
 });
 
-let setCommand = bot.registerCommand("set" , (msg: Message) => {
+let setCommand = bot.registerCommand("set", (msg: Message) => {
     bot.createMessage(msg.channel.id, {
         embed: {
             title: "List Of Sub-Commands To Set Logging Channel",
@@ -42,10 +42,42 @@ let setCommand = bot.registerCommand("set" , (msg: Message) => {
             }
         }
     });
-});
+}, {
+        description: "See How can We Set The Logs!",
+        usage: ""
+    });
 
-setCommand.registerSubcommand("vclog" , (msg: Message, args: any | any[]) => {
-    
-})
+setCommand.registerSubcommand("vclog", async (msg: Message) => {
+    console.log(msg.channelMentions);
+    // if(typeof msg.channel !== TextChannel) throw bot.createMessage(msg.channel.id, "This Command can Only be Used In A Guild!")
+    let guild = (msg.channel as TextChannel).guild;
+    if (!guild) throw bot.createMessage(msg.channel.id, "This Command can Only be Used In A Guild!")
+    let channel: string;
+    let shouldSet: Boolean = true;
+    if ((msg.channelMentions as Array<string>).length === 0) shouldSet = false;
+    channel = (msg.channelMentions as Array<string>)[0];
+    let gChannel = await guild.channels.get(channel);
+    if (!gChannel) throw bot.createMessage(msg.channel.id, "Channel Couldnt be Found!");
+
+    switch (shouldSet) {
+        case true:
+        if(!db.findOne({serverID: guild.id})) {
+            let stage = new db({
+                serverID: guild.id, logging:
+                {
+                    voicelog: channel
+                }
+            });
+            await stage.save();
+        } else {
+            await db.updateOne({serverID: guild.id} , {logging : { voicelog: channel}});
+        }
+            break;
+        
+        case false:
+            await db.updateOne({serverID: guild.id} , {logging : { voicelog: undefined}});
+            break;
+    }
+});
 
 bot.connect();
