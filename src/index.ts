@@ -47,22 +47,22 @@ let setCommand = bot.registerCommand("set", (msg: Message) => {
         usage: ""
     });
 
-setCommand.registerSubcommand("vclog", async (msg: Message) => {
+setCommand.registerSubcommand("vclog", async (msg: Message): Promise<any> => {
     console.log(msg.channelMentions);
     // if(typeof msg.channel !== TextChannel) throw bot.createMessage(msg.channel.id, "This Command can Only be Used In A Guild!")
     let guild = (msg.channel as TextChannel).guild;
-    if (!guild) throw bot.createMessage(msg.channel.id, "This Command can Only be Used In A Guild!")
+    if (!guild) return bot.createMessage(msg.channel.id, "This Command can Only be Used In A Guild!")
     let channel: string;
     let shouldSet: Boolean = true;
-    if ((msg.channelMentions as Array<string>).length === 0) shouldSet = false;
+    if ((msg.channelMentions as Array<string>).length <= 0) shouldSet = false;
     channel = (msg.channelMentions as Array<string>)[0];
     let gChannel = await guild.channels.get(channel);
-    if (!gChannel) throw bot.createMessage(msg.channel.id, "Channel Couldnt be Found!");
-
+    if (!gChannel) return bot.createMessage(msg.channel.id, "Channel Couldnt be Found!");
+    console.log()
     switch (shouldSet) {
         case true:
         db.findOne({serverID: guild.id} , async (err, file) => {
-            if (err) return;
+            if (err) return console.log(chalk.red(err.stack));
             if(!file || file === null) {
             let stage = new db({
                 serverID: guild.id, logging:
@@ -82,5 +82,9 @@ setCommand.registerSubcommand("vclog", async (msg: Message) => {
             break;
     }
 });
+
+process.on("unhandledRejection" , (err: any) => {
+    console.log(chalk.red(err.stack));
+})
 
 bot.connect();
