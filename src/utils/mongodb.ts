@@ -1,17 +1,16 @@
 import * as mongoose from "mongoose";
 import config from "../../config";
 
-mongoose.connect(config.mongoURI , { useNewUrlParser: true });
+mongoose.connect(config.mongoURI, { useNewUrlParser: true });
 
 const guildSchema = new mongoose.Schema({
     serverID: String,
-    logging: {
-        messageLog: {type: String, default: undefined},
-        voiceLog: {type: String, default: undefined},
-        userLog: {type: String, default: undefined}
-    }
+    messageLog: String,
+    voiceLog: String,
+    userLog: String
+
 });
 
-let db = mongoose.model("guilds" , guildSchema);
+let db = mongoose.model("guilds", guildSchema);
 
 export default db;

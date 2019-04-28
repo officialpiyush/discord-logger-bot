@@ -52,42 +52,65 @@ setCommand.registerSubcommand("vclog", async (msg: Message): Promise<any> => {
     // if(typeof msg.channel !== TextChannel) throw bot.createMessage(msg.channel.id, "This Command can Only be Used In A Guild!")
     let guild = (msg.channel as TextChannel).guild;
     if (!guild) return bot.createMessage(msg.channel.id, "This Command can Only be Used In A Guild!")
-    let channel: string;
+    let channel: string ;
     let shouldSet = true;
     if ((msg.channelMentions as Array<string>).length <= 0) shouldSet = false;
     channel = (msg.channelMentions as Array<string>)[0];
-    if(shouldSet){
-    let gChannel = await guild.channels.get(channel);
-    if (!gChannel) return bot.createMessage(msg.channel.id, "Channel Couldnt be Found!");
+    if (shouldSet) {
+        let gChannel = await guild.channels.get(channel);
+        if (!gChannel) return bot.createMessage(msg.channel.id, "Channel Couldnt be Found!");
     }
-    console.log(shouldSet);
+    console.log(typeof channel);
 
 
     switch (shouldSet) {
         case true:
-        db.findOne({serverID: guild.id} , async (err, file) => {
-            if (err) return console.log(chalk.red(err.stack));
-            if(!file || file === null) {
-                console.log("0");
-            let stage = new db();
-            (stage as any).serverID = guild.id;
-            (stage as any).logging.voicelog = channel;
-            stage.save();
-        } else if(file || file !== null){
-            console.log("1");
-            await db.updateOne({serverID: guild.id} , {logging : { voicelog: channel}});
-        }
-    });
+            db.findOne({ serverID: guild.id }, async (err, file) => {
+                if (err) return console.log(chalk.red(err.stack));
+                if (!file || file === null) {
+                    console.log("0");
+                    let stage = new db();
+                    (stage as any).serverID = guild.id;
+                    (stage as any).voicelog = (channel as String);
+                    console.log((stage as any).voicelog);
+                    stage.save();
+                } else if (file || file !== null) {
+                    console.log("1");
+                    await db.updateOne({ serverID: guild.id }, {  voicelog: channel  });
+                }
+            });
             break;
-        
+
         case false:
-        console.log("2");
-            await db.updateOne({serverID: guild.id} , {logging : { voicelog: undefined}});
+            console.log("2");
+            await db.updateOne({ serverID: guild.id }, {  voicelog: undefined });
             break;
     }
 });
 
-process.on("unhandledRejection" , (err: any) => {
+bot.registerCommand("config", (msg: Message) => {
+    let guild = (msg.channel as TextChannel).guild;
+    if (!guild) return bot.createMessage(msg.channel.id, "This Command can Only be Used In A Guild!")
+    db.findOne({ serverID: guild.id }, async (err, file) => {
+        if (err) return console.log(chalk.red(err.stack));
+        if(!file || file===null) return bot.createMessage(msg.channel.id, "Configuration Not Found!")
+        console.log(typeof file);
+        console.log(file)
+        return bot.createMessage(msg.channel.id, {
+            embed: {
+                title: `Configuration For ${guild.name}`,
+                fields: [
+                    {
+                        name: "VC Logs",
+                        value: `<#${(file as any).voicelog}>`
+                    }
+                ]
+            }
+        })
+    });
+});
+
+process.on("unhandledRejection", (err: any) => {
     console.log(chalk.red(err.stack));
 })
 
