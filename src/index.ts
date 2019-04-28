@@ -61,7 +61,9 @@ setCommand.registerSubcommand("vclog", async (msg: Message) => {
 
     switch (shouldSet) {
         case true:
-        if(!db.findOne({serverID: guild.id})) {
+        db.findOne({serverID: guild.id} , async (err, file) => {
+            if (err) return;
+            if(!file || file === null) {
             let stage = new db({
                 serverID: guild.id, logging:
                 {
@@ -69,9 +71,10 @@ setCommand.registerSubcommand("vclog", async (msg: Message) => {
                 }
             });
             await stage.save();
-        } else {
+        } else if(file || file !== null){
             await db.updateOne({serverID: guild.id} , {logging : { voicelog: channel}});
         }
+    });
             break;
         
         case false:
