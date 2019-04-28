@@ -72,7 +72,7 @@ setCommand.registerSubcommand("vclog", async (msg: Message): Promise<any> => {
             let stage = new db();
             (stage as any).serverID = guild.id;
             (stage as any).logging.voicelog = channel;
-            await stage.save();
+            stage.save();
         } else if(file || file !== null){
             console.log("1");
             await db.updateOne({serverID: guild.id} , {logging : { voicelog: channel}});
