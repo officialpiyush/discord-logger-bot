@@ -16,9 +16,10 @@
 * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import {CommandClient} from "eris";
-import config from "../config";
+import {CommandClient, Message} from "eris";
 import chalk from "chalk";
+import config from "../config";
+import db from "./utils/mongodb";
 
 const bot = new CommandClient(config.token , {} , {
     description: config.description,
@@ -29,5 +30,22 @@ const bot = new CommandClient(config.token , {} , {
 bot.on("ready" , () => {
     console.log(chalk.blue(`[ BOT ] Logged In as ${bot.user.username} - ${bot.user.id}`));
 });
+
+let setCommand = bot.registerCommand("set" , (msg: Message) => {
+    bot.createMessage(msg.channel.id, {
+        embed: {
+            title: "List Of Sub-Commands To Set Logging Channel",
+            color: 7731560,
+            description: "`set vclog` , `set msglog` , `set userlog`",
+            footer: {
+                text: `${bot.user.username}#${bot.user.discriminator}`
+            }
+        }
+    });
+});
+
+setCommand.registerSubcommand("vclog" , (msg: Message, args: any | any[]) => {
+    
+})
 
 bot.connect();

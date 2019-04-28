@@ -2,7 +2,8 @@ const config = {
     token: "",
     preifx: "",
     description: "A Logger Bot For Discord!",
-    owner: "iona Dev ( Piyush )#6969"
+    owner: "iona Dev ( Piyush )#6969",
+    mongoURI: ""
 };
 
 export default config;
