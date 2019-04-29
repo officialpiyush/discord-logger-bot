@@ -20,7 +20,7 @@ import { CommandClient, Message, PrivateChannel, TextChannel, GuildChannel } fro
 import * as util from "util";
 import chalk from "chalk";
 import config from "../config";
-import db from "./utils/mongodb";
+import { db } from "./utils/mongodb";
 
 const bot = new CommandClient(config.token, {}, {
     description: config.description,
@@ -63,6 +63,14 @@ setCommand.registerSubcommand("vclog", async (msg: Message): Promise<any> => {
     }
     console.log(typeof channel);
     
+    switch (shouldSet) {
+        case true:
+            
+            break;
+    
+        default:
+            break;
+    }
 });
 
 bot.registerCommand("config", (msg: Message) => {
