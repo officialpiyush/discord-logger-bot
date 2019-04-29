@@ -21,7 +21,6 @@ import * as util from "util";
 import chalk from "chalk";
 import config from "../config";
 import db from "./utils/mongodb";
-import { notEqual } from "assert";
 
 const bot = new CommandClient(config.token, {}, {
     description: config.description,
@@ -63,34 +62,7 @@ setCommand.registerSubcommand("vclog", async (msg: Message): Promise<any> => {
         if (!gChannel) return bot.createMessage(msg.channel.id, "Channel Couldnt be Found!");
     }
     console.log(typeof channel);
-
-
-    switch (shouldSet) {
-        case true:
-            let stage = new db();
-            (stage as any).voicelog = (channel as String);
-            stage.save();
-            // db.findOne({ serverID: guild.id }, async (err, file) => {
-            //     if (err) return console.log(chalk.red(err.stack));
-            //     if (!file || file === null) {
-            //         console.log("0");
-            //         let stage = new db();
-            //         (stage as any).serverID = guild.id;
-            //         (stage as any).voicelog = (channel as String);
-            //         console.log((stage as any).voicelog);
-            //         stage.save();
-            //     } else if (file || file !== null) {
-            //         console.log("1");
-            //         await db.updateOne({ serverID: guild.id }, {  voicelog: channel  });
-            //     }
-            // });
-            break;
-
-        case false:
-            console.log("2");
-            await db.updateOne({ serverID: guild.id }, { voicelog: undefined });
-            break;
-    }
+    
 });
 
 bot.registerCommand("config", (msg: Message) => {
