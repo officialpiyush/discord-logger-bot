@@ -66,8 +66,8 @@ setCommand.registerSubcommand("vclog", async (msg: Message): Promise<any> => {
     switch (shouldSet) {
         case true:
             db.findOneAndUpdate({serverID: guild.id} , {logging: {voicelog: channel}} , {upsert: true} , function(err: any) {
-                if(err) return console.log(chalk.red(err.stack));
-                msg.channel.createMessage(`<#${channel} has been successfully set for 🔊 Voice Logs`);
+                if(err) return console.log(chalk.red(err.stack))
+                else msg.channel.createMessage(`<#${channel}> has been successfully set for 🔊 Voice Logs`);
             });
             break;
             
