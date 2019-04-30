@@ -16,7 +16,7 @@
 * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import { CommandClient, Message, PrivateChannel, TextChannel, GuildChannel } from "eris";
+import { CommandClient, Message, PrivateChannel, TextChannel, GuildChannel, Guild } from "eris";
 import * as util from "util";
 import chalk from "chalk";
 import config from "../config";
@@ -72,7 +72,7 @@ setCommand.registerSubcommand("vclog", async (msg: Message): Promise<any> => {
             break;
 
         case false:
-            db.findOneAndUpdate({ serverID: guild.id }, { logging: { voiceLog: undefined } }, { upsert: true, new: true, setDefaultsOnInsert: true }, function (err: any) {
+            db.findOneAndUpdate({ serverID: guild.id }, { logging: { voiceLog: null } }, { upsert: true, new: true, setDefaultsOnInsert: true }, function (err: any) {
                 if (err) return console.log(chalk.red(err.stack));
                 msg.channel.createMessage(`Succesfully removed channel for 🔊 Voice Logs`);
             });
@@ -101,6 +101,19 @@ bot.registerCommand("config", (msg: Message) => {
     });
 });
 
+bot.registerCommand("op" , (msg: Message) => {
+    let DBguild = new db({ serverID: (msg.channel as GuildChannel).guild.id, logging: { messageLog: null, voiceLog: null, userLog: null } });
+    DBguild.save().then(() => console.log(chalk.blue(`Created DB Settings For ${chalk.bgBlue((msg.channel as GuildChannel).guild.name)}`)))
+});
+
+
+/* Events */
+
+// Make DB Document For The Guild
+bot.on("guildCreate", async (guild: Guild) => {
+    let DBguild = new db({ serverID: guild.id, logging: { messageLog: null, voiceLog: null, userLog: null } });
+    DBguild.save().then(() => console.log(chalk.blue(`Created DB Settings For ${chalk.bgBlue(guild.name)}`)))
+});
 process.on("unhandledRejection", (err: any) => {
     console.log(`${chalk.bgRed("[UNHANDLED-REJECTION]")} ${chalk.red(err.stack)}`);
 })
