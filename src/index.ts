@@ -105,7 +105,7 @@ bot.registerCommand("config", (msg: Message) => {
 });
 
 process.on("unhandledRejection", (err: any) => {
-    console.log(chalk.red(err.stack));
+    console.log(`${chalk.bgRed("[UNHANDLED-REJECTION]")} ${chalk.red(err.stack)}`);
 })
 
 bot.connect();
