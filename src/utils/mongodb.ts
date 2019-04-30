@@ -3,7 +3,7 @@ import { connect, model, Model, Schema } from "mongoose";
 import config from "../../config";
 import { GuildInterface } from "../interfaces/GuildInterface";
 
-connect(config.mongoURI, { useNewUrlParser: true });
+connect(config.mongoURI, { useNewUrlParser: true, useFindAndModify: false });
 
 const guildSchema = new Schema({
     serverID: { type: String, unique: true },
