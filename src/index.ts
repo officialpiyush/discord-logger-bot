@@ -52,8 +52,6 @@ let setCommand = bot.registerCommand("set", (msg: Message) => {
     });
 
 setCommand.registerSubcommand("vclog", async (msg: Message): Promise<any> => {
-    console.log((msg.channelMentions as Array<string>).length);
-    // if(typeof msg.channel !== TextChannel) throw bot.createMessage(msg.channel.id, "This Command can Only be Used In A Guild!")
     let guild = (msg.channel as TextChannel).guild;
     if (!guild) return bot.createMessage(msg.channel.id, "This Command can Only be Used In A Guild!")
     let channel: string;
@@ -64,7 +62,6 @@ setCommand.registerSubcommand("vclog", async (msg: Message): Promise<any> => {
         let gChannel = await guild.channels.get(channel);
         if (!gChannel) return bot.createMessage(msg.channel.id, "Channel Couldnt be Found!");
     }
-    console.log(typeof channel);
 
     switch (shouldSet) {
         case true:
