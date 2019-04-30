@@ -6,7 +6,7 @@ import { GuildInterface } from "../interfaces/GuildInterface";
 connect(config.mongoURI, { useNewUrlParser: true });
 
 const guildSchema = new Schema({
-    serverID: String,
+    serverID: { type: String, unique: true },
     logging: {
         messageLog: String,
         voiceLog: String,
