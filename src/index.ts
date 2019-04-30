@@ -84,6 +84,40 @@ setCommand.registerSubcommand("vclog", async (msg: Message): Promise<any> => {
     }
 });
 
+setCommand.registerSubcommand("userlog", async (msg: Message): Promise<any> => {
+    let guild = (msg.channel as TextChannel).guild;
+    if (!guild) return bot.createMessage(msg.channel.id, "This Command can Only be Used In A Guild!")
+    let channel: string;
+    let shouldSet = true;
+    if ((msg.channelMentions as Array<string>).length <= 0) shouldSet = false;
+    channel = (msg.channelMentions as Array<string>)[0];
+    if (shouldSet) {
+        let gChannel = await guild.channels.get(channel);
+        if (!gChannel) return bot.createMessage(msg.channel.id, "Channel Couldnt be Found!");
+    }
+
+    switch (shouldSet) {
+        case true:
+        db.findOne({serverID: guild.id} , (err: any, info: GuildDBInterface) => {
+            if(err) return console.log(chalk.red(err));
+            info.logging.userLog = channel;
+            info.save((err: any) => {
+                if(err) return console.log(chalk.red(err))
+            })
+        });
+            break;
+
+        case false:
+        db.findOne({serverID: guild.id} , (err: any, info: GuildDBInterface) => {
+            if(err) return console.log(chalk.red(err));
+            info.logging.userLog = null;
+            info.save((err: any) => {
+                if(err) return console.log(chalk.red(err))
+            })
+        });
+    }
+});
+
 setCommand.registerSubcommand("msglog", async (msg: Message): Promise<any> => {
     let guild = (msg.channel as TextChannel).guild;
     if (!guild) return bot.createMessage(msg.channel.id, "This Command can Only be Used In A Guild!")
