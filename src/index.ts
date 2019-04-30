@@ -92,7 +92,7 @@ bot.registerCommand("config", (msg: Message) => {
         console.log(file)
         return bot.createMessage(msg.channel.id, {
             embed: {
-                title: `Configuration For ${guild.name}`,
+                title: `Configuration For **${guild.name}**`,
                 fields: [
                     {
                         name: "VC Logs",
@@ -103,18 +103,6 @@ bot.registerCommand("config", (msg: Message) => {
         })
     });
 });
-
-bot.registerCommand("eval", async (message: Message, args: any[]): Promise<any> => {
-    let guild = (message.channel as TextChannel).guild, channel = message.channel, author = message.author, member = message.member; // eslint-disable-line
-    if (author.id !== "365644930556755969") return;
-    try {
-        let output = await eval(`(async function(){${args.join(" ").replace(/“|”/g, "\"")}}).call()`);
-        output = util.inspect(output, { depth: 0 }).substring(0, 1900);
-        return `:white_check_mark: **Output:** \`\`\`js\n${output}\`\`\``;
-    } catch (error) {
-        return `:x: **Error:** \`\`\`${error}\`\`\``;
-    }
-})
 
 process.on("unhandledRejection", (err: any) => {
     console.log(chalk.red(err.stack));
