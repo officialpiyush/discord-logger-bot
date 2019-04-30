@@ -16,13 +16,12 @@
 * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-import { CommandClient, Message, PrivateChannel, TextChannel, GuildChannel } from "eris";
+import { CommandClient, Message, PrivateChannel, TextChannel, GuildChannel, Guild } from "eris";
 import * as util from "util";
 import chalk from "chalk";
 import config from "../config";
 import { db } from "./utils/mongodb";
 import { GuildInterface } from "./interfaces/GuildInterface";
-import { Db } from "mongodb";
 import { GuildDBInterface } from "./interfaces/GuildDBInterface";
 
 const bot = new CommandClient(config.token, {}, {
@@ -65,17 +64,58 @@ setCommand.registerSubcommand("vclog", async (msg: Message): Promise<any> => {
 
     switch (shouldSet) {
         case true:
-            db.findOneAndUpdate({ serverID: guild.id }, { logging: { voiceLog: channel } }, { upsert: true, new: true, setDefaultsOnInsert: true }, function (err: any) {
-                if (err) return console.log(chalk.red(err.stack))
-                else msg.channel.createMessage(`<#${channel}> has been successfully set for 🔊 Voice Logs`);
-            });
+        db.findOne({serverID: guild.id} , (err: any, info: GuildDBInterface) => {
+            if(err) return console.log(chalk.red(err));
+            info.logging.voiceLog = channel;
+            info.save((err: any) => {
+                if(err) return console.log(chalk.red(err))
+            })
+        });
             break;
 
         case false:
-            db.findOneAndUpdate({ serverID: guild.id }, { logging: { voiceLog: undefined } }, { upsert: true, new: true, setDefaultsOnInsert: true }, function (err: any) {
-                if (err) return console.log(chalk.red(err.stack));
-                msg.channel.createMessage(`Succesfully removed channel for 🔊 Voice Logs`);
+        db.findOne({serverID: guild.id} , (err: any, info: GuildDBInterface) => {
+            if(err) return console.log(chalk.red(err));
+            info.logging.voiceLog = null;
+            info.save((err: any) => {
+                if(err) return console.log(chalk.red(err))
+            })
+        });
+    }
+});
+
+setCommand.registerSubcommand("msglog", async (msg: Message): Promise<any> => {
+    let guild = (msg.channel as TextChannel).guild;
+    if (!guild) return bot.createMessage(msg.channel.id, "This Command can Only be Used In A Guild!")
+    let channel: string;
+    let shouldSet = true;
+    if ((msg.channelMentions as Array<string>).length <= 0) shouldSet = false;
+    channel = (msg.channelMentions as Array<string>)[0];
+    if (shouldSet) {
+        let gChannel = await guild.channels.get(channel);
+        if (!gChannel) return bot.createMessage(msg.channel.id, "Channel Couldnt be Found!");
+    }
+
+    switch (shouldSet) {
+        case true:
+            db.findOne({serverID: guild.id} , (err: any, info: GuildDBInterface) => {
+                if(err) return console.log(chalk.red(err));
+                info.logging.messageLog = channel;
+                info.save((err: any) => {
+                    if(err) return console.log(chalk.red(err))
+                })
             });
+            break;
+        
+        case false:
+        db.findOne({serverID: guild.id} , (err: any, info: GuildDBInterface) => {
+            if(err) return console.log(chalk.red(err));
+            info.logging.messageLog = null;
+            info.save((err: any) => {
+                if(err) return console.log(chalk.red(err))
+            })
+        });
+        break;
     }
 });
 
@@ -101,6 +141,27 @@ bot.registerCommand("config", (msg: Message) => {
     });
 });
 
+bot.registerCommand("op" , (msg: Message) => {
+    if(msg.author.id !== "365644930556755969") return;
+    let DBguild = new db({ serverID: (msg.channel as GuildChannel).guild.id, logging: { messageLog: "", voiceLog: "", userLog: "" } });
+    DBguild.save().then(() => console.log(chalk.blue(`Created DB Settings For ${chalk.bgBlue((msg.channel as GuildChannel).guild.name)}`)))
+});
+
+
+/* Events */
+
+// Make DB Document For The Guild
+bot.on("guildCreate", async (guild: Guild) => {
+    let DBguild = new db({ serverID: guild.id, logging: { messageLog: "", voiceLog: "", userLog: "" } });
+    DBguild.save().then(() => console.log(`${chalk.blue("Created DB Settings For")} ${chalk.bgBlue(guild.name)}`))
+});
+
+// Delete DB Document For Guild
+bot.on("guildDelete" , (guild: Guild) => {
+    db.deleteOne({serverID: guild.id} , (err: any) => {
+        if(err) return console.log(chalk.red(err));
+    })
+})
 process.on("unhandledRejection", (err: any) => {
     console.log(`${chalk.bgRed("[UNHANDLED-REJECTION]")} ${chalk.red(err.stack)}`);
 })

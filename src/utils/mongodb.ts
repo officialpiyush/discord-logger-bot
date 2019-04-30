@@ -8,9 +8,9 @@ connect(config.mongoURI, { useNewUrlParser: true, useFindAndModify: false, useCr
 const guildSchema = new Schema({
     serverID: { type: String, unique: true },
     logging: {
-        messageLog: { type: String, default: undefined },
-        voiceLog: { type: String, default: undefined },
-        userLog: { type: String, default: undefined }
+        messageLog: { type: String },
+        voiceLog: { type: String },
+        userLog: { type: String }
     }
 });
 
