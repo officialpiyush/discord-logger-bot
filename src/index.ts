@@ -65,11 +65,17 @@ setCommand.registerSubcommand("vclog", async (msg: Message): Promise<any> => {
     
     switch (shouldSet) {
         case true:
+            db.findOneAndUpdate({serverID: guild.id} , {voicelog: channel} , {upsert: true} , function(err: any) {
+                if(err) return console.log(chalk.red(err.stack));
+                msg.channel.createMessage(`<#${channel} has been successfully set for 🔊 Voice Logs`);
+            });
+            break;
             
-            break;
-    
-        default:
-            break;
+            case false:
+            db.findOneAndUpdate({serverID: guild.id} , {voicelog: undefined} , {upsert: true} , function(err: any) {
+                if(err) return console.log(chalk.red(err.stack));
+                msg.channel.createMessage(`Succesfully removed channel for 🔊 Voice Logs`);
+            });
     }
 });
 
