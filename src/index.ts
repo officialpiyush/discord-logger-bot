@@ -23,6 +23,7 @@ import config from "../config";
 import { db } from "./utils/mongodb";
 import { GuildInterface } from "./interfaces/GuildInterface";
 import { Db } from "mongodb";
+import { GuildDBInterface } from "./interfaces/GuildDBInterface";
 
 const bot = new CommandClient(config.token, {}, {
     description: config.description,
@@ -67,14 +68,14 @@ setCommand.registerSubcommand("vclog", async (msg: Message): Promise<any> => {
 
     switch (shouldSet) {
         case true:
-            db.findOneAndUpdate({ serverID: guild.id, logging: { voiceLog: channel } }, {}, { upsert: true, new: true, setDefaultsOnInsert: true }, function (err: any) {
+            db.findOneAndUpdate({ serverID: guild.id }, { logging: { voiceLog: channel } }, { upsert: true, new: true, setDefaultsOnInsert: true }, function (err: any) {
                 if (err) return console.log(chalk.red(err.stack))
                 else msg.channel.createMessage(`<#${channel}> has been successfully set for 🔊 Voice Logs`);
             });
             break;
 
         case false:
-            db.findOneAndUpdate({ serverID: guild.id, logging: { voiceLog: undefined } }, {}, { upsert: true, new: true, setDefaultsOnInsert: true }, function (err: any) {
+            db.findOneAndUpdate({ serverID: guild.id }, { logging: { voiceLog: undefined } }, { upsert: true, new: true, setDefaultsOnInsert: true }, function (err: any) {
                 if (err) return console.log(chalk.red(err.stack));
                 msg.channel.createMessage(`Succesfully removed channel for 🔊 Voice Logs`);
             });
@@ -95,7 +96,7 @@ bot.registerCommand("config", (msg: Message) => {
                 fields: [
                     {
                         name: "VC Logs",
-                        value: `<#${(file as GuildInterface).logging.voiceLog}>`
+                        value: `<#${(file as GuildDBInterface).logging.voiceLog}>`
                     }
                 ]
             }
