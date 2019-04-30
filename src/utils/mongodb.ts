@@ -1,11 +1,11 @@
 
-import * as mongoose from "mongoose";
+import { connect, model, Model, Schema } from "mongoose";
 import config from "../../config";
 import { GuildInterface } from "../interfaces/GuildInterface";
 
-mongoose.connect(config.mongoURI, { useNewUrlParser: true });
+connect(config.mongoURI, { useNewUrlParser: true });
 
-const guildSchema = new mongoose.Schema({
+const guildSchema = new Schema({
     serverID: String,
     logging: {
         messageLog: String,
@@ -14,4 +14,4 @@ const guildSchema = new mongoose.Schema({
     }
 });
 
-export const db: mongoose.Model<GuildInterface> = mongoose.model<GuildInterface>("guild", guildSchema);
+export const db: Model<GuildInterface> = model<GuildInterface>("guild", guildSchema);
