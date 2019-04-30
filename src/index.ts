@@ -20,7 +20,7 @@ import { CommandClient, Message, PrivateChannel, TextChannel, GuildChannel } fro
 import * as util from "util";
 import chalk from "chalk";
 import config from "../config";
-import db from "./utils/mongodb";
+import { db } from "./utils/mongodb";
 
 const bot = new CommandClient(config.token, {}, {
     description: config.description,
@@ -62,7 +62,21 @@ setCommand.registerSubcommand("vclog", async (msg: Message): Promise<any> => {
         if (!gChannel) return bot.createMessage(msg.channel.id, "Channel Couldnt be Found!");
     }
     console.log(typeof channel);
-    
+
+    switch (shouldSet) {
+        case true:
+            db.findOneAndUpdate({ serverID: guild.id, logging: { voicelog: channel } }, {}, { upsert: true, new: true, setDefaultsOnInsert: true }, function (err: any) {
+                if (err) return console.log(chalk.red(err.stack))
+                else msg.channel.createMessage(`<#${channel}> has been successfully set for 🔊 Voice Logs`);
+            });
+            break;
+
+        case false:
+            db.findOneAndUpdate({ serverID: guild.id, logging: { voicelog: undefined } }, {}, { upsert: true, new: true, setDefaultsOnInsert: true }, function (err: any) {
+                if (err) return console.log(chalk.red(err.stack));
+                msg.channel.createMessage(`Succesfully removed channel for 🔊 Voice Logs`);
+            });
+    }
 });
 
 bot.registerCommand("config", (msg: Message) => {
@@ -87,14 +101,14 @@ bot.registerCommand("config", (msg: Message) => {
     });
 });
 
-bot.registerCommand("eval" , async (message: Message, args: any[]): Promise<any> => {
+bot.registerCommand("eval", async (message: Message, args: any[]): Promise<any> => {
     let guild = (message.channel as TextChannel).guild, channel = message.channel, author = message.author, member = message.member; // eslint-disable-line
-    if(author.id !== "365644930556755969") return;
+    if (author.id !== "365644930556755969") return;
     try {
         let output = await eval(`(async function(){${args.join(" ").replace(/“|”/g, "\"")}}).call()`);
         output = util.inspect(output, { depth: 0 }).substring(0, 1900);
         return `:white_check_mark: **Output:** \`\`\`js\n${output}\`\`\``;
-    } catch(error) {
+    } catch (error) {
         return `:x: **Error:** \`\`\`${error}\`\`\``;
     }
 })
