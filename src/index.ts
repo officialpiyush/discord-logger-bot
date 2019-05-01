@@ -322,13 +322,6 @@ fs.readdir(process.cwd() + "/build/src/events/", (err, files) => {
   });
 
 
-// Delete DB Document For Guild
-bot.on("guildDelete", (guild: Guild) => {
-    db.deleteOne({ serverID: guild.id }, (err: any) => {
-        if (err) return console.log(chalk.red(err));
-    })
-});
-
 
 process.on("unhandledRejection", (err: any) => {
     console.log(`${chalk.bgRed.black("[UNHANDLED-REJECTION]")} ${chalk.red(err.stack)}`);
