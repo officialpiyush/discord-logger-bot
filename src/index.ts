@@ -17,6 +17,7 @@
 */
 
 import { CommandClient, Message, PrivateChannel, TextChannel, GuildChannel, Guild } from "eris";
+import "./utils/eris-additions";
 import * as util from "util";
 import chalk from "chalk";
 import config from "../config";
