@@ -1,0 +1,1 @@
+export default ["Text Channel" , "DM Channel" , "Voice Channel" , "Group DM Channel" , "Category"]

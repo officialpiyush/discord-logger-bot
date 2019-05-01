@@ -4,3 +4,4 @@ config.ts
 yarn.lock
 yarn-error.log
 src/utils/logger.ts
+.vscode/fdb.code-snippets
