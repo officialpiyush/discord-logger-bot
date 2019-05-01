@@ -10,6 +10,7 @@ const guildSchema = new Schema({
     logging: {
         messageLog: { type: String },
         voiceLog: { type: String },
+        guildLog: {type: String},
         userLog: { type: String }
     }
 });

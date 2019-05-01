@@ -5,6 +5,7 @@ export interface GuildInterface extends Document {
     logging: {
         messageLog: string | null,
         voiceLog: string | null,
+        guildLog: string | null,
         userLog: string | null
     }
 }

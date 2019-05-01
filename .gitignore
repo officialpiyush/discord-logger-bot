@@ -3,3 +3,4 @@ build
 config.ts
 yarn.lock
 yarn-error.log
+src/utils/logger.ts
