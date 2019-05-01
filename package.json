@@ -1,4 +1,5 @@
 {
+  "version": "0.29.0",
   "scripts": {
     "start": "node build/src/index.js",
     "build": "tsc",
