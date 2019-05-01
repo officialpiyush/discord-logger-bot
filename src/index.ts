@@ -19,6 +19,7 @@
 import { CommandClient, Message, PrivateChannel, TextChannel, GuildChannel, Guild } from "eris";
 import "./utils/eris-additions";
 import * as util from "util";
+import * as fs from "fs";
 import chalk from "chalk";
 import config from "../config";
 import { db } from "./utils/mongodb";
@@ -308,21 +309,27 @@ bot.registerCommand("op", (msg: Message) => {
     DBguild.save().then(() => console.log(chalk.blue(`${chalk.blue("Created DB Settings For")} ${chalk.bgBlue(chalk.black((msg.channel as GuildChannel).guild.name))}`)))
 });
 
-
 /* Events */
+fs.readdir(process.cwd() + "/build/src/events/", (err, files) => {
+    if (err) return console.error(err);
+    files.forEach(file => {
+      if (!file.endsWith(".js")) return;
+      const event = require(`./events/${file}`);
+      let eventName = file.split(".")[0];
+      bot.on(eventName, event.bind(null, bot));
+      delete require.cache[require.resolve(`./events/${file}`)];
+    });
+  });
 
-// Make DB Document For The Guild
-bot.on("guildCreate", async (guild: Guild) => {
-    let DBguild = new db({ serverID: guild.id, logging: { messageLog: null, voiceLog: null, guildLog: null, userLog: null } });
-    DBguild.save().then(() => console.log(`${chalk.blue("Created DB Settings For")} ${chalk.bgBlue(chalk.white(` ${guild.name} `))}`))
-});
 
 // Delete DB Document For Guild
 bot.on("guildDelete", (guild: Guild) => {
     db.deleteOne({ serverID: guild.id }, (err: any) => {
         if (err) return console.log(chalk.red(err));
     })
-})
+});
+
+
 process.on("unhandledRejection", (err: any) => {
     console.log(`${chalk.bgRed.black("[UNHANDLED-REJECTION]")} ${chalk.red(err.stack)}`);
 })
